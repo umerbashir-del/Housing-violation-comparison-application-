@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": false,
+    "target": "ES2022",
+    "lib": ["DOM", "ES2022"]
+  },
+  "files": ["app.js", "browser-globals.d.ts"]
+}

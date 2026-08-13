@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blockwise | NYC building records</title>
+    <meta
+      name="description"
+      content="Read-only NYC HPD public-record research for renters."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/">B <span>Blockwise</span></a>
+      <nav>
+        <a href="#search">Search</a><a href="trust.html">Data &amp; trust</a>
+      </nav>
+      <small>LIVE NYC DATA &middot; READ ONLY</small>
+    </header>
+    <main>
+      <section class="hero">
+        <p class="eyebrow">NYC RENTAL RESEARCH</p>
+        <h1>Know a building<br />before you <em>move in.</em></h1>
+        <p>
+          Search and filter NYC housing-maintenance records. Blockwise shows
+          public information; it never changes city records.
+        </p>
+        <a href="#search" class="button">Explore buildings <b>&darr;</b></a>
+      </section>
+      <section class="explorer" id="search">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">LIVE HPD EXPLORER</p>
+            <h2>Find the building behind the listing.</h2>
+          </div>
+          <p>
+            Search a NYC address, house number and street, ZIP code, or borough.
+          </p>
+        </div>
+        <div class="search-box">
+          <label class="sr-only" for="searchInput"
+            >Search address or ZIP code</label
+          >
+          <input
+            id="searchInput"
+            autocomplete="off"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-controls="suggestions"
+            aria-expanded="false"
+            placeholder="Address, building number + street, or ZIP"
+          />
+          <button id="searchButton">Search</button>
+          <div id="suggestions" class="suggestions" role="listbox" hidden></div>
+        </div>
+        <p class="hint">
+          Examples: 125 Grand Street, 160 Franklin Avenue, or 11249
+        </p>
+        <div class="example-searches" aria-label="Example searches">
+          <button type="button" data-example-search="125 Grand Street">
+            125 Grand Street</button
+          ><button type="button" data-example-search="11249">11249</button
+          ><button type="button" data-example-search="BROOKLYN">
+            Brooklyn
+          </button>
+        </div>
+        <div class="filters">
+          <label
+            >Borough<select id="borough">
+              <option value="">All boroughs</option>
+              <option value="MANHATTAN">Manhattan</option>
+              <option value="BRONX">Bronx</option>
+              <option value="BROOKLYN">Brooklyn</option>
+              <option value="QUEENS">Queens</option>
+              <option value="STATEN ISLAND">Staten Island</option>
+            </select></label
+          >
+          <label
+            >Status<select id="statusFilter">
+              <option value="">All records</option>
+              <option value="Open">Open violations only</option>
+            </select></label
+          >
+          <label
+            >Severity<select id="severity">
+              <option value="">Any severity</option>
+              <option value="A">Class A</option>
+              <option value="B">Class B</option>
+              <option value="C">Class C</option>
+            </select></label
+          >
+          <label
+            >Problem type<select id="problem">
+              <option value="">All problem types</option>
+              <option value="HEAT">Heat / hot water</option>
+              <option value="MOLD">Mold / dampness</option>
+              <option value="PEST">Pests</option>
+              <option value="LEAD">Lead</option>
+              <option value="ELECTRICAL">Electrical</option>
+              <option value="PLUMBING">Plumbing</option>
+            </select></label
+          >
+        </div>
+        <div id="loadingState" class="state loading" hidden>
+          <span class="spinner"></span>
+          <p>
+            Checking NYC public records<span class="dots"
+              ><i>.</i><i>.</i><i>.</i></span
+            >
+          </p>
+        </div>
+        <div id="errorState" class="state error" hidden role="alert">
+          <span>!</span>
+          <p id="errorMessage"></p>
+          <button id="retryButton">Retry</button>
+        </div>
+        <p id="searchStatus" class="status" aria-live="polite">
+          Choose a borough or enter a search to load live records.
+        </p>
+        <div class="results">
+          <section class="records">
+            <div class="record-header">
+              <div>
+                <p class="eyebrow">RESULTS</p>
+                <h3 id="resultTitle">Ready to explore</h3>
+              </div>
+              <strong id="resultCount">&mdash;</strong>
+            </div>
+            <div id="recordList">
+              <div class="empty">
+                <b>!</b>
+                <p>Search a building or ZIP code to see public records.</p>
+              </div>
+            </div>
+            <div id="pagination" class="pagination" hidden>
+              <button id="previousButton">Previous</button
+              ><span id="pageLabel"></span><button id="nextButton">Next</button>
+            </div>
+          </section>
+          <section class="map-panel">
+            <div id="map"></div>
+            <div id="mapFallback" class="map-fallback" hidden>
+              Map unavailable. Building records are still available in the list.
+            </div>
+          </section>
+        </div>
+        <p id="sourceStatus" class="source-status">
+          Source: NYC HPD Housing Maintenance Code Violations.
+        </p>
+      </section>
+      <section class="disclaimer">
+        <h2>A signal, not a verdict.</h2>
+        <p>
+          Public records can be incomplete or delayed. A result does not
+          establish a building&rsquo;s current condition. Use it alongside an
+          in-person visit and your own judgment.
+        </p>
+        <a href="trust.html">Read our data &amp; methodology &rarr;</a>
+      </section>
+    </main>
+    <footer>
+      <span>&copy; 2026 Blockwise</span><a href="trust.html">Data &amp; trust</a
+      ><span>Contact details coming before launch</span>
+    </footer>
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

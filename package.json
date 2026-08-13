@@ -1,0 +1,21 @@
+{
+  "name": "blockwise",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/prepare-vendor.js",
+    "test": "node --test",
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1",
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  }
+}
