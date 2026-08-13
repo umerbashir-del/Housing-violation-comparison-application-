@@ -5,6 +5,7 @@ const {
   normalizeStreet,
   where,
   groupedQuery,
+  detailsQuery,
 } = require("../lib/search");
 test("normalizes common street abbreviations", () =>
   assert.equal(normalizeStreet("Grand St"), "GRAND STREET"));
@@ -49,6 +50,16 @@ test("rejects unknown time and sort controls", () => {
   assert.throws(
     () => validate({ q: "11249", sort: "score" }),
     /Invalid sort option/,
+  );
+});
+test("builds a safe building-specific violation details query", () => {
+  const query = detailsQuery("123456");
+  assert.equal(query.$where, "buildingid='123456'");
+  assert.match(query.$select, /novdescription/);
+  assert.match(query.$select, /apartment/);
+  assert.throws(
+    () => detailsQuery("123 OR 1=1"),
+    /Invalid building identifier/,
   );
 });
 test("builds grouped server-side query with pagination and accurate counts", () => {

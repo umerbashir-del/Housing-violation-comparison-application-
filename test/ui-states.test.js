@@ -387,6 +387,57 @@ test("renders a separate official source link for each building", async () => {
   assert.equal(card.querySelector("a").href, building.sourceUrl);
 });
 
+test("loads readable individual violation details only when requested", async () => {
+  const building = {
+    id: "123456",
+    address: "125 GRAND STREET",
+    borough: "BROOKLYN",
+    zip: "11249",
+    open: 2,
+    classC: 1,
+    total: 4,
+    sourceUrl: "https://data.cityofnewyork.us/resource/wvxf-dwi5.json",
+  };
+  const { document } = setup({
+    fetchMock: async (url) =>
+      String(url).includes("mode=details")
+        ? response(200, {
+            partial: false,
+            violations: [
+              {
+                id: "123",
+                description: "REPAIR LEAKING PLUMBING FIXTURE",
+                class: "B",
+                status: "Open",
+                issued: "2026-01-02T00:00:00.000",
+                apartment: "4B",
+                floor: "4",
+                rentImpairing: true,
+              },
+            ],
+          })
+        : response(200, {
+            buildings: [building],
+            page: 0,
+            partial: false,
+            hasMore: false,
+          }),
+  });
+  fillSearch(document);
+  await tick();
+  const trigger = document.querySelector(".details-button");
+  trigger.click();
+  await tick();
+  assert.match(
+    document.querySelector(".violation-details").textContent,
+    /REPAIR LEAKING PLUMBING FIXTURE/,
+  );
+  assert.match(
+    document.querySelector(".violation-details").textContent,
+    /Apt 4B/,
+  );
+});
+
 test("sends Class I, date, age, and sort choices to the read-only API", async () => {
   let requestedUrl;
   const { document } = setup({

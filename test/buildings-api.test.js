@@ -195,3 +195,41 @@ test("returns small address suggestions without exposing raw source rows", async
     },
   );
 });
+
+test("returns safe individual violation details for a verified building", async () => {
+  await withApi(
+    async () =>
+      response(200, [
+        {
+          violationid: "123",
+          novdescription: "REPAIR LEAKING PLUMBING FIXTURE",
+          class: "B",
+          violationstatus: "Open",
+          novissueddate: "2026-01-02T00:00:00.000",
+          apartment: "4B",
+          story: "4",
+          rentimpairing: "Y",
+        },
+      ]),
+    async (handler) => {
+      const res = reply();
+      await handler(request({ mode: "details", buildingId: "123456" }), res);
+      assert.equal(res.statusCode, 200);
+      assert.deepEqual(res.body, {
+        violations: [
+          {
+            id: "123",
+            description: "REPAIR LEAKING PLUMBING FIXTURE",
+            class: "B",
+            status: "Open",
+            issued: "2026-01-02T00:00:00.000",
+            apartment: "4B",
+            floor: "4",
+            rentImpairing: true,
+          },
+        ],
+        partial: false,
+      });
+    },
+  );
+});

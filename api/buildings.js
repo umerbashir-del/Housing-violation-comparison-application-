@@ -1,4 +1,9 @@
-const { validate, groupedQuery, suggestionQuery } = require("../lib/search");
+const {
+  validate,
+  groupedQuery,
+  suggestionQuery,
+  detailsQuery,
+} = require("../lib/search");
 const DATA_URL = "https://data.cityofnewyork.us/resource/wvxf-dwi5.json";
 const META_URL = "https://data.cityofnewyork.us/api/views/wvxf-dwi5.json";
 const PAGE_SIZE = 50,
@@ -104,6 +109,18 @@ function normalize(rows) {
     sourceUrl: sourceUrl(row),
   }));
 }
+function normalizeDetails(rows) {
+  return rows.map((row) => ({
+    id: String(row.violationid || ""),
+    description: String(row.novdescription || "Description not listed").trim(),
+    class: String(row.class || "Not listed").trim(),
+    status: String(row.violationstatus || "Not listed").trim(),
+    issued: row.novissueddate || null,
+    apartment: String(row.apartment || "").trim(),
+    floor: String(row.story || "").trim(),
+    rentImpairing: row.rentimpairing === "Y",
+  }));
+}
 async function metadata() {
   try {
     const data = await get(new URL(META_URL));
@@ -132,6 +149,13 @@ module.exports = async (req, res) => {
           borough: row.boro,
           zip: row.zip || "",
         })),
+      });
+    }
+    if (req.query.mode === "details") {
+      const rows = await get(url(detailsQuery(req.query.buildingId)));
+      return json(res, 200, {
+        violations: normalizeDetails(rows),
+        partial: rows.length === 100,
       });
     }
     const filters = validate(req.query),

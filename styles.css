@@ -362,6 +362,48 @@ header small {
   font-size: 10px;
   font-weight: 800;
 }
+.details-button {
+  margin-top: 10px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--green);
+  font: 800 10px Manrope;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.details-button:disabled {
+  color: var(--muted);
+  cursor: wait;
+}
+.violation-details {
+  margin-top: 12px;
+  border-top: 1px solid #e4e6e0;
+  padding-top: 10px;
+}
+.violation-details h4 {
+  margin: 0 0 8px;
+  font-size: 11px;
+}
+.violation-details > p,
+.violation-item p {
+  margin: 4px 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.violation-item {
+  padding: 9px 0;
+  border-top: 1px solid #edf0ea;
+}
+.violation-item b {
+  font-size: 10px;
+  line-height: 1.4;
+}
+.details-error {
+  color: #783624 !important;
+  font-weight: 700;
+}
 .record b {
   font-size: 12px;
 }

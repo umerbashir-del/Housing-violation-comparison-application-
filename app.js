@@ -154,6 +154,8 @@ function recordCard(building) {
     name = document.createElement("b"),
     location = document.createElement("small"),
     meta = document.createElement("div"),
+    detailsButton = document.createElement("button"),
+    details = document.createElement("section"),
     source = document.createElement("a");
   card.className = "record";
   button.className = "record-select";
@@ -172,13 +174,82 @@ function recordCard(building) {
   });
   button.append(name, location, meta);
   button.addEventListener("click", () => focusBuilding(building, card));
+  detailsButton.type = "button";
+  detailsButton.className = "details-button";
+  detailsButton.textContent = "View violation details";
+  details.className = "violation-details";
+  details.hidden = true;
+  detailsButton.addEventListener("click", () =>
+    loadDetails(building, details, detailsButton),
+  );
   source.href = building.sourceUrl;
   source.target = "_blank";
   source.rel = "noopener noreferrer";
   source.className = "source-link";
   source.textContent = "Official NYC source";
-  card.append(button, source);
+  card.append(button, detailsButton, details, source);
   return card;
+}
+
+function dateLabel(value) {
+  const date = value ? new Date(value) : null;
+  return date && !Number.isNaN(date.valueOf())
+    ? date.toLocaleDateString()
+    : "Date not listed";
+}
+
+async function loadDetails(building, panel, trigger) {
+  if (!building.id) return;
+  if (!panel.hidden) {
+    panel.hidden = true;
+    trigger.textContent = "View violation details";
+    return;
+  }
+  trigger.disabled = true;
+  trigger.textContent = "Loading details...";
+  panel.replaceChildren();
+  panel.hidden = false;
+  try {
+    const response = await fetch(
+      `/api/buildings?mode=details&buildingId=${encodeURIComponent(building.id)}`,
+    );
+    const body = await readJson(response);
+    if (!response.ok) throw { status: response.status, message: body.error };
+    const heading = document.createElement("h4");
+    heading.textContent = "Violation details";
+    panel.append(heading);
+    if (body.partial) {
+      const notice = document.createElement("p");
+      notice.textContent =
+        "Showing the 100 most recent records. Use the official source for the complete history.";
+      panel.append(notice);
+    }
+    if (!(body.violations || []).length) {
+      const empty = document.createElement("p");
+      empty.textContent =
+        "No individual violation details were returned for this building.";
+      panel.append(empty);
+    }
+    (body.violations || []).forEach((violation) => {
+      const item = document.createElement("article"),
+        description = document.createElement("b"),
+        facts = document.createElement("p");
+      item.className = "violation-item";
+      description.textContent = violation.description;
+      facts.textContent = `Class ${violation.class} · ${violation.status} · Issued ${dateLabel(violation.issued)}${violation.apartment ? ` · Apt ${violation.apartment}` : ""}${violation.floor ? ` · Floor ${violation.floor}` : ""}${violation.rentImpairing ? " · Rent-impairing" : ""}`;
+      item.append(description, facts);
+      panel.append(item);
+    });
+    trigger.textContent = "Hide violation details";
+  } catch (error) {
+    const message = document.createElement("p");
+    message.className = "details-error";
+    message.textContent = friendlyError(error);
+    panel.replaceChildren(message);
+    trigger.textContent = "Try violation details again";
+  } finally {
+    trigger.disabled = false;
+  }
 }
 
 function initMap() {
