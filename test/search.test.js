@@ -60,8 +60,8 @@ test("builds grouped server-side query with pagination and accurate counts", () 
   );
   assert.equal(query.$limit, "51");
   assert.equal(query.$offset, "50");
-  assert.equal(query.$group, "buildingid");
-  assert.match(query.$select, /max\(housenumber\) as housenumber/);
+  assert.match(query.$group, /buildingid/);
+  assert.match(query.$group, /housenumber/);
   assert.match(query.$select, /violationstatus='Open'/);
   assert.match(query.$select, /class='C'/);
   assert.match(query.$having, /violationstatus='Open'/);
