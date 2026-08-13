@@ -453,6 +453,19 @@ header small {
   margin: 0 0 8px;
   font-size: 11px;
 }
+.violation-details h5 {
+  margin: 12px 0 5px;
+  font-size: 10px;
+}
+.violation-details details {
+  margin-top: 10px;
+}
+.violation-details summary {
+  cursor: pointer;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 800;
+}
 .violation-details > p,
 .violation-item p {
   margin: 4px 0;
@@ -509,6 +522,23 @@ header small {
 .map-panel {
   position: relative;
   border-left: 1px solid #d6d9d3;
+}
+.reset-map-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 500;
+  border: 1px solid #cdd3ca;
+  background: #fff;
+  color: var(--ink);
+  padding: 8px 10px;
+  font: 800 10px Manrope;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgb(23 37 31 / 18%);
+}
+.reset-map-button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
 }
 .map-fallback {
   position: absolute;

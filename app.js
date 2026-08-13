@@ -17,6 +17,7 @@ const ui = {
   suggestionIndex: -1,
   map: null,
   markers: [],
+  mapPoints: [],
   comparison: [],
 };
 
@@ -304,7 +305,14 @@ async function loadDetails(building, panel, trigger) {
         "No individual violation details were returned for this building.";
       panel.append(empty);
     }
-    (body.violations || []).forEach((violation) => {
+    const records = body.violations || [];
+    const openRecords = records.filter(
+      (violation) => violation.status === "Open",
+    );
+    const closedRecords = records.filter(
+      (violation) => violation.status !== "Open",
+    );
+    const appendRecord = (violation, target) => {
       const item = document.createElement("article"),
         description = document.createElement("b"),
         facts = document.createElement("p");
@@ -312,8 +320,22 @@ async function loadDetails(building, panel, trigger) {
       description.textContent = violation.description;
       facts.textContent = `Class ${violation.class} · ${violation.status} · Issued ${dateLabel(violation.issued)}${violation.apartment ? ` · Apt ${violation.apartment}` : ""}${violation.floor ? ` · Floor ${violation.floor}` : ""}${violation.rentImpairing ? " · Rent-impairing" : ""}`;
       item.append(description, facts);
-      panel.append(item);
-    });
+      target.append(item);
+    };
+    if (openRecords.length) {
+      const openHeading = document.createElement("h5");
+      openHeading.textContent = `Open violations (${openRecords.length})`;
+      panel.append(openHeading);
+      openRecords.forEach((violation) => appendRecord(violation, panel));
+    }
+    if (closedRecords.length) {
+      const closed = document.createElement("details"),
+        summary = document.createElement("summary");
+      summary.textContent = `Closed records (${closedRecords.length})`;
+      closed.append(summary);
+      closedRecords.forEach((violation) => appendRecord(violation, closed));
+      panel.append(closed);
+    }
     trigger.textContent = "Hide violation details";
   } catch (error) {
     const message = document.createElement("p");
@@ -350,6 +372,7 @@ function drawMap(buildings) {
   if (!ui.map) return;
   ui.markers.forEach((item) => item.marker.remove());
   ui.markers = [];
+  ui.mapPoints = [];
   const points = [];
   buildings.forEach((building) => {
     if (!building.latitude || !building.longitude) return;
@@ -369,8 +392,17 @@ function drawMap(buildings) {
     ui.markers.push({ marker, building });
     points.push([building.latitude, building.longitude]);
   });
-  if (points.length)
-    ui.map.fitBounds(points, { padding: [25, 25], maxZoom: 15 });
+  ui.mapPoints = points;
+  $("resetMapButton").disabled = !points.length;
+  resetMapView();
+}
+
+function resetMapView() {
+  if (!ui.map || !ui.mapPoints.length) return;
+  ui.map.fitBounds(ui.mapPoints, { padding: [25, 25], maxZoom: 15 });
+  document
+    .querySelectorAll(".record")
+    .forEach((item) => item.classList.remove("active"));
 }
 
 function focusBuilding(building, card) {
@@ -476,6 +508,7 @@ function runSearchFromInput() {
 }
 $("searchButton").onclick = runSearchFromInput;
 $("retryButton").onclick = search;
+$("resetMapButton").onclick = resetMapView;
 $("clearComparison").onclick = () => {
   ui.comparison = [];
   renderComparison();

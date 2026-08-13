@@ -438,6 +438,77 @@ test("loads readable individual violation details only when requested", async ()
   );
 });
 
+test("groups open details first and keeps closed records collapsed", async () => {
+  const building = {
+    id: "123456",
+    address: "125 GRAND STREET",
+    borough: "BROOKLYN",
+    zip: "11249",
+    open: 1,
+    openClassC: 1,
+    classC: 1,
+    total: 2,
+    sourceUrl: "https://data.cityofnewyork.us/resource/wvxf-dwi5.json",
+  };
+  const { document } = setup({
+    fetchMock: async (url) =>
+      String(url).includes("mode=details")
+        ? response(200, {
+            partial: false,
+            violations: [
+              { description: "OPEN CLASS C", class: "C", status: "Open" },
+              { description: "CLOSED CLASS A", class: "A", status: "Close" },
+            ],
+          })
+        : response(200, {
+            buildings: [building],
+            page: 0,
+            partial: false,
+            hasMore: false,
+          }),
+  });
+  fillSearch(document);
+  await tick();
+  document.querySelector(".details-button").click();
+  await tick();
+  const details = document.querySelector(".violation-details");
+  assert.match(details.textContent, /Open violations \(1\)/);
+  assert.equal(details.querySelector("details").open, false);
+  assert.match(
+    details.querySelector("details summary").textContent,
+    /Closed records \(1\)/,
+  );
+});
+
+test("enables the map reset button when a result has a map location", async () => {
+  const building = {
+    id: "1",
+    address: "125 GRAND STREET",
+    borough: "BROOKLYN",
+    zip: "11249",
+    open: 1,
+    openClassC: 0,
+    classC: 0,
+    total: 1,
+    latitude: 40.7,
+    longitude: -73.9,
+    sourceUrl: "https://data.cityofnewyork.us/resource/wvxf-dwi5.json",
+  };
+  const { document } = setup({
+    fetchMock: async () =>
+      response(200, {
+        buildings: [building],
+        page: 0,
+        partial: false,
+        hasMore: false,
+      }),
+  });
+  assert.equal(document.getElementById("resetMapButton").disabled, true);
+  fillSearch(document);
+  await tick();
+  assert.equal(document.getElementById("resetMapButton").disabled, false);
+});
+
 test("shortlists up to three buildings in a side-by-side comparison", async () => {
   const buildings = [
     "101 FIRST STREET",

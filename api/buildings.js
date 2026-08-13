@@ -111,16 +111,31 @@ function normalize(rows) {
   }));
 }
 function normalizeDetails(rows) {
-  return rows.map((row) => ({
-    id: String(row.violationid || ""),
-    description: String(row.novdescription || "Description not listed").trim(),
-    class: String(row.class || "Not listed").trim(),
-    status: String(row.violationstatus || "Not listed").trim(),
-    issued: row.novissueddate || null,
-    apartment: String(row.apartment || "").trim(),
-    floor: String(row.story || "").trim(),
-    rentImpairing: row.rentimpairing === "Y",
-  }));
+  const classOrder = { C: 0, B: 1, A: 2, I: 3 };
+  return rows
+    .map((row) => ({
+      id: String(row.violationid || ""),
+      description: String(
+        row.novdescription || "Description not listed",
+      ).trim(),
+      class: String(row.class || "Not listed").trim(),
+      status: String(row.violationstatus || "Not listed").trim(),
+      issued: row.novissueddate || null,
+      apartment: String(row.apartment || "").trim(),
+      floor: String(row.story || "").trim(),
+      rentImpairing: row.rentimpairing === "Y",
+    }))
+    .sort((first, second) => {
+      const status =
+        Number(first.status !== "Open") - Number(second.status !== "Open");
+      if (status) return status;
+      const severity =
+        (classOrder[first.class] ?? 4) - (classOrder[second.class] ?? 4);
+      if (severity) return severity;
+      return String(second.issued || "").localeCompare(
+        String(first.issued || ""),
+      );
+    });
 }
 async function metadata() {
   try {
