@@ -195,9 +195,6 @@ function initMap() {
           '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>',
       },
     );
-    tiles.on("tileerror", () => {
-      $("mapFallback").hidden = false;
-    });
     tiles.addTo(ui.map);
   } catch {
     $("mapFallback").hidden = false;

@@ -11,6 +11,9 @@
 * {
   box-sizing: border-box;
 }
+[hidden] {
+  display: none !important;
+}
 body {
   margin: 0;
   background: var(--paper);
@@ -161,6 +164,12 @@ header small {
   min-height: 15px;
   margin: 0 auto 8px;
   color: #68776e;
+  font-size: 10px;
+}
+.map-note {
+  max-width: 1080px;
+  margin: 0 auto;
+  color: var(--muted);
   font-size: 10px;
 }
 .filters {

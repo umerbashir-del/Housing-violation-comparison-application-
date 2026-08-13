@@ -6,6 +6,10 @@ const { JSDOM } = require("jsdom");
 
 const page = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+const styles = fs.readFileSync(
+  path.join(__dirname, "..", "styles.css"),
+  "utf8",
+);
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 const waitForSuggestions = () =>
   new Promise((resolve) => setTimeout(resolve, 280));
@@ -80,6 +84,10 @@ function fillSearch(document, value = "11249") {
   document.getElementById("searchInput").value = value;
   document.getElementById("searchButton").click();
 }
+
+test("keeps hidden loading and error panels out of view", () => {
+  assert.match(styles, /\[hidden\]\s*\{\s*display:\s*none\s*!important;/);
+});
 
 test("shows loading, then replaces it with no-results guidance", async () => {
   let finish;
@@ -297,6 +305,11 @@ test("explains when address suggestions need more input or are unavailable", asy
 test("shows the map fallback if the map cannot start", () => {
   const { document } = setup({ mapFails: true });
   assert.equal(document.getElementById("mapFallback").hidden, false);
+});
+
+test("does not cover building pins when an individual map tile fails", () => {
+  const { document } = setup();
+  assert.equal(document.getElementById("mapFallback").hidden, true);
 });
 
 test("supports Arrow keys, Enter, and Escape in address suggestions", async () => {
