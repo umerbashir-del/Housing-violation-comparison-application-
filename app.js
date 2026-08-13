@@ -8,6 +8,7 @@ const ui = {
   error: $("errorState"),
   errorMessage: $("errorMessage"),
   suggestions: $("suggestions"),
+  suggestionStatus: $("suggestionStatus"),
   page: 0,
   controller: null,
   suggestionController: null,
@@ -25,6 +26,11 @@ function filters() {
     status: $("statusFilter").value,
     severity: $("severity").value,
     problem: $("problem").value,
+    issuedWithin: $("issuedWithin").value,
+    openOlderThan: $("openOlderThan").value,
+    sort: $("sort").value,
+    apartment: $("apartment").value.trim(),
+    floor: $("floor").value.trim(),
     page: ui.page,
   };
 }
@@ -263,7 +269,19 @@ function chooseSuggestion(button) {
 let suggestionTimer;
 async function suggest() {
   const q = ui.input.value.trim();
-  if (q.length < 3 || /^\d{5}$/.test(q)) return closeSuggestions();
+  if (q.length < 3) {
+    closeSuggestions();
+    ui.suggestionStatus.textContent = q
+      ? "Keep typing: suggestions appear after 3 characters."
+      : "Start typing an address to see building suggestions.";
+    return;
+  }
+  if (/^\d{5}$/.test(q)) {
+    closeSuggestions();
+    ui.suggestionStatus.textContent =
+      "ZIP searches show results after you select Search.";
+    return;
+  }
   if (ui.suggestionController) ui.suggestionController.abort();
   const controller = new AbortController();
   ui.suggestionController = controller;
@@ -289,8 +307,15 @@ async function suggest() {
     });
     ui.suggestions.hidden = !ui.suggestions.childElementCount;
     ui.input.setAttribute("aria-expanded", String(!ui.suggestions.hidden));
+    ui.suggestionStatus.textContent = ui.suggestions.hidden
+      ? "No address suggestions yet. Keep typing or select Search."
+      : `${ui.suggestions.childElementCount} address suggestions available.`;
   } catch (error) {
-    if (error.name !== "AbortError") closeSuggestions();
+    if (error.name !== "AbortError") {
+      closeSuggestions();
+      ui.suggestionStatus.textContent =
+        "Address suggestions are unavailable right now. You can still select Search.";
+    }
   }
 }
 
@@ -346,7 +371,17 @@ document.querySelectorAll("[data-example-search]").forEach((button) =>
     runSearchFromInput();
   }),
 );
-["borough", "statusFilter", "severity", "problem"].forEach((id) => {
+[
+  "borough",
+  "statusFilter",
+  "severity",
+  "problem",
+  "issuedWithin",
+  "openOlderThan",
+  "sort",
+  "apartment",
+  "floor",
+].forEach((id) => {
   $(id).onchange = () => {
     ui.page = 0;
     if (ui.input.value.trim() || $("borough").value) search();

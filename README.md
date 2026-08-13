@@ -59,6 +59,24 @@ Install the test dependency before running the included automated tests:
 npm install
 ```
 
+## Run locally with live data
+
+Do **not** open `index.html` directly or use a basic static-server extension for this project. Those options cannot run the `/api/buildings` backend, so live searches will not work correctly.
+
+From this folder, run:
+
+```bash
+npm run dev
+```
+
+On Windows PowerShell, use this if `npm` is blocked:
+
+```bash
+npm.cmd run dev
+```
+
+Vercel will print a local address, usually `http://localhost:3000`. Open that address, then search for an address or ZIP. The first run may ask you to sign in to Vercel or link the folder to your Vercel project. No NYC token is required for live public-data searches.
+
 ## Run tests
 
 From this folder:

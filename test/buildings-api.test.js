@@ -74,6 +74,7 @@ test("returns a normalized, read-only building result with source timestamp", as
         return response(200, { rowsUpdatedAt: 1_700_000_000 });
       return response(200, [
         {
+          buildingid: "123456",
           housenumber: "125",
           streetname: "GRAND STREET",
           boro: "BROOKLYN",
@@ -95,6 +96,10 @@ test("returns a normalized, read-only building result with source timestamp", as
       assert.equal(res.body.buildings[0].address, "125 GRAND STREET");
       assert.equal(res.body.buildings[0].open, 2);
       assert.equal(res.body.buildings[0].classC, 1);
+      assert.match(
+        decodeURIComponent(res.body.buildings[0].sourceUrl),
+        /buildingid='123456'/,
+      );
       assert.match(res.body.datasetUpdatedAt, /^2023-11-14T/);
       assert.equal(calls.length, 2);
     },

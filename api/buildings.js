@@ -63,13 +63,20 @@ function url(query) {
 }
 function id(row) {
   return (
+    row.buildingid ||
     row.bin ||
     row.bbl ||
     [row.housenumber, row.streetname, row.boro, row.zip].join("|")
   );
 }
 function sourceUrl(row) {
-  const field = row.bin ? "bin" : row.bbl ? "bbl" : "";
+  const field = row.buildingid
+    ? "buildingid"
+    : row.bin
+      ? "bin"
+      : row.bbl
+        ? "bbl"
+        : "";
   if (!field)
     return "https://data.cityofnewyork.us/Housing-Development/Housing-Maintenance-Code-Violations/wvxf-dwi5";
   const link = new URL(DATA_URL);
@@ -79,9 +86,15 @@ function sourceUrl(row) {
 function normalize(rows) {
   return rows.map((row) => ({
     id: id(row),
-    address: `${row.housenumber || ""} ${row.streetname || ""}`.trim(),
-    borough: row.boro || "NYC",
-    zip: row.zip || "",
+    address:
+      `${String(row.housenumber || "").trim()} ${String(row.streetname || "").trim()}`.trim() ||
+      "Address not listed",
+    borough: String(row.boro || "NYC")
+      .trim()
+      .toUpperCase(),
+    zip: /^\d{5}$/.test(String(row.zip || "").trim())
+      ? String(row.zip).trim()
+      : "",
     latitude: Number(row.latitude) || null,
     longitude: Number(row.longitude) || null,
     total: Number(row.total) || 0,

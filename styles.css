@@ -156,6 +156,13 @@ header small {
   color: #68776e;
   font-size: 11px;
 }
+.suggestion-status {
+  max-width: 1080px;
+  min-height: 15px;
+  margin: 0 auto 8px;
+  color: #68776e;
+  font-size: 10px;
+}
 .filters {
   max-width: 1080px;
   margin: 22px auto;
@@ -163,12 +170,20 @@ header small {
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
+.filter-note {
+  max-width: 1080px;
+  margin: -10px auto 22px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
 .filters label {
   font-weight: 800;
   font-size: 10px;
   color: #536159;
 }
-.filters select {
+.filters select,
+.filters input {
   display: block;
   width: 100%;
   margin-top: 6px;

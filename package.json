@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
+    "dev": "npx vercel dev",
     "build": "node scripts/prepare-vendor.js",
     "test": "node --test",
     "typecheck": "tsc --project tsconfig.json"

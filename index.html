@@ -64,6 +64,9 @@
         <p class="hint">
           Examples: 125 Grand Street, 160 Franklin Avenue, or 11249
         </p>
+        <p id="suggestionStatus" class="suggestion-status" aria-live="polite">
+          Start typing an address to see building suggestions.
+        </p>
         <div class="example-searches" aria-label="Example searches">
           <button type="button" data-example-search="125 Grand Street">
             125 Grand Street</button
@@ -95,6 +98,7 @@
               <option value="A">Class A</option>
               <option value="B">Class B</option>
               <option value="C">Class C</option>
+              <option value="I">Class I (information order)</option>
             </select></label
           >
           <label
@@ -108,7 +112,50 @@
               <option value="PLUMBING">Plumbing</option>
             </select></label
           >
+          <label
+            >Issued<select id="issuedWithin">
+              <option value="">Any time</option>
+              <option value="365">Past year</option>
+              <option value="730">Past 2 years</option>
+              <option value="1825">Past 5 years</option>
+            </select></label
+          >
+          <label
+            >Open record age<select id="openOlderThan">
+              <option value="">Any age</option>
+              <option value="90">Issued 90+ days ago</option>
+              <option value="365">Issued 1+ year ago</option>
+            </select></label
+          >
+          <label
+            >Sort results<select id="sort">
+              <option value="total">Most records</option>
+              <option value="open">Most open violations</option>
+              <option value="classC">Most Class C violations</option>
+              <option value="newest">Most recently inspected</option>
+            </select></label
+          >
+          <label
+            >Apartment (optional)<input
+              id="apartment"
+              inputmode="text"
+              maxlength="20"
+              placeholder="e.g. 4B"
+          /></label>
+          <label
+            >Floor (optional)<input
+              id="floor"
+              inputmode="text"
+              maxlength="20"
+              placeholder="e.g. 4"
+          /></label>
         </div>
+        <p class="filter-note">
+          “Issued” refers to the record’s issue date. An open record remains
+          active in HPD’s records; it does not by itself confirm the condition
+          has not been corrected. Apartment and floor details may be missing
+          from public records.
+        </p>
         <div id="loadingState" class="state loading" hidden>
           <span class="spinner"></span>
           <p>

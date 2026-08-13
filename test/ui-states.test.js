@@ -272,6 +272,28 @@ test("a stale autocomplete request cannot replace newer suggestions", async () =
     /GRAND/,
   );
 });
+test("explains when address suggestions need more input or are unavailable", async () => {
+  const { window, document } = setup({
+    fetchMock: async () => {
+      throw new TypeError("Network failed");
+    },
+  });
+  const input = document.getElementById("searchInput");
+  input.value = "Gr";
+  input.dispatchEvent(new window.Event("input"));
+  await waitForSuggestions();
+  assert.match(
+    document.getElementById("suggestionStatus").textContent,
+    /after 3 characters/,
+  );
+  input.value = "Grand";
+  input.dispatchEvent(new window.Event("input"));
+  await waitForSuggestions();
+  assert.match(
+    document.getElementById("suggestionStatus").textContent,
+    /unavailable right now/,
+  );
+});
 test("shows the map fallback if the map cannot start", () => {
   const { document } = setup({ mapFails: true });
   assert.equal(document.getElementById("mapFallback").hidden, false);
@@ -350,4 +372,33 @@ test("renders a separate official source link for each building", async () => {
   const card = document.querySelector(".record");
   assert.equal(card.querySelector("button a"), null);
   assert.equal(card.querySelector("a").href, building.sourceUrl);
+});
+
+test("sends Class I, date, age, and sort choices to the read-only API", async () => {
+  let requestedUrl;
+  const { document } = setup({
+    fetchMock: async (url) => {
+      requestedUrl = new URL(url, "https://blockwise.example");
+      return response(200, {
+        buildings: [],
+        page: 0,
+        partial: false,
+        hasMore: false,
+      });
+    },
+  });
+  document.getElementById("severity").value = "I";
+  document.getElementById("issuedWithin").value = "365";
+  document.getElementById("openOlderThan").value = "90";
+  document.getElementById("sort").value = "open";
+  document.getElementById("apartment").value = "4B";
+  document.getElementById("floor").value = "4";
+  fillSearch(document);
+  await tick();
+  assert.equal(requestedUrl.searchParams.get("severity"), "I");
+  assert.equal(requestedUrl.searchParams.get("issuedWithin"), "365");
+  assert.equal(requestedUrl.searchParams.get("openOlderThan"), "90");
+  assert.equal(requestedUrl.searchParams.get("sort"), "open");
+  assert.equal(requestedUrl.searchParams.get("apartment"), "4B");
+  assert.equal(requestedUrl.searchParams.get("floor"), "4");
 });
