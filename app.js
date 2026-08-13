@@ -17,6 +17,7 @@ const ui = {
   suggestionIndex: -1,
   map: null,
   markers: [],
+  comparison: [],
 };
 
 function filters() {
@@ -141,6 +142,7 @@ function render(body, state) {
     ui.list.append(empty);
   }
   buildings.forEach((building) => ui.list.append(recordCard(building)));
+  renderComparison();
   $("pagination").hidden = !body.partial && body.page === 0;
   $("previousButton").disabled = body.page === 0;
   $("nextButton").disabled = !body.hasMore;
@@ -154,6 +156,7 @@ function recordCard(building) {
     name = document.createElement("b"),
     location = document.createElement("small"),
     meta = document.createElement("div"),
+    compareButton = document.createElement("button"),
     detailsButton = document.createElement("button"),
     details = document.createElement("section"),
     source = document.createElement("a");
@@ -164,8 +167,8 @@ function recordCard(building) {
   location.textContent = `${building.borough} \u00b7 ${building.zip || "ZIP not listed"}`;
   [
     ["open", `${building.open} open`],
-    ["", `${building.classC} Class C`],
-    ["", `${building.total} records`],
+    ["open", `${building.openClassC} open Class C`],
+    ["", `${building.total} all-time records`],
   ].forEach(([className, text]) => {
     const chip = document.createElement("span");
     chip.className = `chip ${className}`;
@@ -174,6 +177,12 @@ function recordCard(building) {
   });
   button.append(name, location, meta);
   button.addEventListener("click", () => focusBuilding(building, card));
+  const compared = ui.comparison.some((item) => item.id === building.id);
+  compareButton.type = "button";
+  compareButton.className = "compare-button";
+  compareButton.setAttribute("aria-pressed", String(compared));
+  compareButton.textContent = compared ? "Remove from comparison" : "Compare";
+  compareButton.addEventListener("click", () => toggleComparison(building));
   detailsButton.type = "button";
   detailsButton.className = "details-button";
   detailsButton.textContent = "View violation details";
@@ -187,8 +196,73 @@ function recordCard(building) {
   source.rel = "noopener noreferrer";
   source.className = "source-link";
   source.textContent = "Official NYC source";
-  card.append(button, detailsButton, details, source);
+  card.append(button, compareButton, detailsButton, details, source);
   return card;
+}
+
+function toggleComparison(building) {
+  const index = ui.comparison.findIndex((item) => item.id === building.id);
+  if (index >= 0) ui.comparison.splice(index, 1);
+  else if (ui.comparison.length >= 3) {
+    ui.status.textContent = "You can compare up to three buildings at once.";
+    return;
+  } else ui.comparison.push(building);
+  renderComparison();
+  document.querySelectorAll(".record").forEach((card) => {
+    const title = card.querySelector(".record-select b")?.textContent;
+    const selected = ui.comparison.some((item) => item.address === title);
+    const trigger = card.querySelector(".compare-button");
+    if (trigger) {
+      trigger.setAttribute("aria-pressed", String(selected));
+      trigger.textContent = selected ? "Remove from comparison" : "Compare";
+    }
+  });
+}
+
+function renderComparison() {
+  const tray = $("comparisonTray");
+  tray.hidden = !ui.comparison.length;
+  if (!ui.comparison.length) return;
+  const head = $("comparisonHead"),
+    body = $("comparisonBody");
+  head.replaceChildren();
+  body.replaceChildren();
+  const headerRow = document.createElement("tr"),
+    label = document.createElement("th");
+  label.scope = "col";
+  label.textContent = "Measure";
+  headerRow.append(label);
+  ui.comparison.forEach((building) => {
+    const cell = document.createElement("th");
+    cell.scope = "col";
+    cell.textContent = building.address;
+    headerRow.append(cell);
+  });
+  head.append(headerRow);
+  [
+    [
+      "Location",
+      (building) => `${building.borough} · ${building.zip || "ZIP not listed"}`,
+    ],
+    ["Open violations", (building) => String(building.open)],
+    ["Open Class C", (building) => String(building.openClassC)],
+    ["All-time records", (building) => String(building.total)],
+    ["Most recently inspected", (building) => dateLabel(building.latest)],
+  ].forEach(
+    (/** @type {[string, (building: any) => string]} */ [name, value]) => {
+      const row = document.createElement("tr"),
+        heading = document.createElement("th");
+      heading.scope = "row";
+      heading.textContent = name;
+      row.append(heading);
+      ui.comparison.forEach((building) => {
+        const cell = document.createElement("td");
+        cell.textContent = value(building);
+        row.append(cell);
+      });
+      body.append(row);
+    },
+  );
 }
 
 function dateLabel(value) {
@@ -402,6 +476,14 @@ function runSearchFromInput() {
 }
 $("searchButton").onclick = runSearchFromInput;
 $("retryButton").onclick = search;
+$("clearComparison").onclick = () => {
+  ui.comparison = [];
+  renderComparison();
+  document.querySelectorAll(".compare-button").forEach((button) => {
+    button.setAttribute("aria-pressed", "false");
+    button.textContent = "Compare";
+  });
+};
 $("previousButton").onclick = () => {
   ui.page -= 1;
   search();

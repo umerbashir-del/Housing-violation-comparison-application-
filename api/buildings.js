@@ -105,6 +105,7 @@ function normalize(rows) {
     total: Number(row.total) || 0,
     open: Number(row.open) || 0,
     classC: Number(row.classc) || 0,
+    openClassC: Number(row.openclassc) || 0,
     latest: row.latest || null,
     sourceUrl: sourceUrl(row),
   }));

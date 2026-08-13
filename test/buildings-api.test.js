@@ -85,6 +85,7 @@ test("returns a normalized, read-only building result with source timestamp", as
           total: "4",
           open: "2",
           classc: "1",
+          openclassc: "1",
           latest: "2026-01-02T00:00:00.000",
         },
       ]);
@@ -96,6 +97,7 @@ test("returns a normalized, read-only building result with source timestamp", as
       assert.equal(res.body.buildings[0].address, "125 GRAND STREET");
       assert.equal(res.body.buildings[0].open, 2);
       assert.equal(res.body.buildings[0].classC, 1);
+      assert.equal(res.body.buildings[0].openClassC, 1);
       assert.match(
         decodeURIComponent(res.body.buildings[0].sourceUrl),
         /buildingid='123456'/,

@@ -186,6 +186,74 @@ header small {
   font-size: 10px;
   line-height: 1.5;
 }
+.comparison-tray {
+  max-width: 1080px;
+  position: sticky;
+  top: 10px;
+  z-index: 8;
+  margin: 0 auto 22px;
+  padding: 18px;
+  border: 1px solid #b8c8bd;
+  background: #f4fbeb;
+  box-shadow: 0 8px 20px rgb(23 37 31 / 12%);
+}
+.comparison-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.comparison-heading h3 {
+  margin: 4px 0 0;
+  font: 700 20px Playfair Display;
+}
+.comparison-heading button,
+.compare-button {
+  border: 1px solid #aac0b2;
+  background: #fff;
+  color: var(--green);
+  padding: 6px 9px;
+  font: 800 10px Manrope;
+  cursor: pointer;
+}
+.compare-button {
+  margin-top: 10px;
+}
+.compare-button[aria-pressed="true"] {
+  background: var(--green);
+  color: #fff;
+}
+.comparison-tray > p {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.comparison-scroll {
+  overflow-x: auto;
+}
+.comparison-tray table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 10px;
+}
+.comparison-tray th,
+.comparison-tray td {
+  padding: 9px;
+  border: 1px solid #d9e2d9;
+  text-align: left;
+  vertical-align: top;
+}
+.comparison-tray thead th {
+  background: #e4f2dc;
+  color: var(--ink);
+  font-weight: 800;
+}
+.comparison-tray tbody th {
+  white-space: nowrap;
+  color: var(--muted);
+}
 .filters label {
   font-weight: 800;
   font-size: 10px;
@@ -512,6 +580,9 @@ footer {
   }
   .filters {
     grid-template-columns: 1fr 1fr;
+  }
+  .comparison-tray {
+    top: 0;
   }
   .results {
     grid-template-columns: 1fr;

@@ -438,6 +438,48 @@ test("loads readable individual violation details only when requested", async ()
   );
 });
 
+test("shortlists up to three buildings in a side-by-side comparison", async () => {
+  const buildings = [
+    "101 FIRST STREET",
+    "102 SECOND STREET",
+    "103 THIRD STREET",
+    "104 FOURTH STREET",
+  ].map((address, index) => ({
+    id: String(index + 1),
+    address,
+    borough: "BROOKLYN",
+    zip: "11249",
+    open: index + 1,
+    openClassC: index,
+    classC: index + 2,
+    total: index + 10,
+    latest: "2026-01-02T00:00:00.000",
+    sourceUrl: "https://data.cityofnewyork.us/resource/wvxf-dwi5.json",
+  }));
+  const { document } = setup({
+    fetchMock: async () =>
+      response(200, { buildings, page: 0, partial: false, hasMore: false }),
+  });
+  fillSearch(document);
+  await tick();
+  const buttons = document.querySelectorAll(".compare-button");
+  buttons[0].click();
+  buttons[1].click();
+  buttons[2].click();
+  assert.equal(document.getElementById("comparisonTray").hidden, false);
+  assert.match(
+    document.getElementById("comparisonBody").textContent,
+    /Open Class C/,
+  );
+  buttons[3].click();
+  assert.match(
+    document.getElementById("searchStatus").textContent,
+    /up to three/,
+  );
+  document.getElementById("clearComparison").click();
+  assert.equal(document.getElementById("comparisonTray").hidden, true);
+});
+
 test("sends Class I, date, age, and sort choices to the read-only API", async () => {
   let requestedUrl;
   const { document } = setup({

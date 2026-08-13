@@ -156,6 +156,30 @@
           has not been corrected. Apartment and floor details may be missing
           from public records.
         </p>
+        <section
+          id="comparisonTray"
+          class="comparison-tray"
+          hidden
+          aria-live="polite"
+        >
+          <div class="comparison-heading">
+            <div>
+              <p class="eyebrow">YOUR SHORTLIST</p>
+              <h3>Compare buildings</h3>
+            </div>
+            <button id="clearComparison" type="button">Clear comparison</button>
+          </div>
+          <p>
+            Choose up to three buildings to compare current and historical HPD
+            records.
+          </p>
+          <div class="comparison-scroll">
+            <table>
+              <thead id="comparisonHead"></thead>
+              <tbody id="comparisonBody"></tbody>
+            </table>
+          </div>
+        </section>
         <div id="loadingState" class="state loading" hidden>
           <span class="spinner"></span>
           <p>
